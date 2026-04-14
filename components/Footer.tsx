@@ -1,9 +1,9 @@
-import Link from "next/link";
+import "../app/globals.css";
 
 export default function Footer() {
     return (
-        <footer className="text-center p-4 bg-gray-100 w-full">
-            <Link href="/" >Home</Link>
+        <footer className="text-center p-4 bg-light-gray w-full">
+            <p>{new Date().getFullYear()} Евгения Кузечкина</p>
         </footer>
     );
 }
