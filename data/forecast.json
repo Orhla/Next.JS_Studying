@@ -1,0 +1,58 @@
+[
+  {
+    "date": "2026-04-13",
+    "tempMin": 8,
+    "tempMax": 15,
+    "description": "Переменная облачность",
+    "humidity": 62,
+    "wind": 14
+  },
+  {
+    "date": "2026-04-14",
+    "tempMin": 6,
+    "tempMax": 12,
+    "description": "Дождь",
+    "humidity": 81,
+    "wind": 22
+  },
+  {
+    "date": "2026-04-15",
+    "tempMin": 4,
+    "tempMax": 10,
+    "description": "Гроза",
+    "humidity": 89,
+    "wind": 31
+  },
+  {
+    "date": "2026-04-16",
+    "tempMin": 7,
+    "tempMax": 14,
+    "description": "Облачно",
+    "humidity": 70,
+    "wind": 18
+  },
+  {
+    "date": "2026-04-17",
+    "tempMin": 10,
+    "tempMax": 18,
+    "description": "Ясно",
+    "humidity": 48,
+    "wind": 9
+  },
+  {
+    "date": "2026-04-18",
+    "tempMin": 12,
+    "tempMax": 21,
+    "description": "Солнечно",
+    "humidity": 41,
+    "wind": 7
+  },
+  {
+    "date": "2026-04-19",
+    "tempMin": 9,
+    "tempMax": 17,
+    "description": "Небольшой дождь",
+    "humidity": 74,
+    "wind": 16
+  }
+]
