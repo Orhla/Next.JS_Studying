@@ -10,8 +10,8 @@ export default async function Home() {
   const averageTemp = await calcAverageTemp(forecast);
   return (
     
-      <div className="flex flex-col justify-center-safe h-screen w-150 mx-auto">
-        <div className="flex flex-col gap-4 justify-center-safe h-screen w-150 mx-auto">
+      <div className="flex flex-col justify-center-safe h-screen w-200 mx-auto">
+        <div className="flex flex-col gap-4 justify-center-safe h-screen w-200 mx-auto">
           {forecast.map((day, index) => (
             <Link key={index}
                   href={`/day/${day.date}`}>
@@ -21,19 +21,19 @@ export default async function Home() {
                   {new Date(Date.parse(day.date)).toLocaleDateString('ru-RU', {weekday: "long", day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
                 <span>
-                  {day.description}
+                  Погода: {day.description}
                 </span>
                 <span>
-                  {day.humidity}
+                  Влажность: {day.humidity}%
                 </span>
                 <span>
-                  {day.tempMin}
+                  Минимальная температура: {day.tempMin}
                 </span>
                 <span>
-                  {day.tempMax}
+                  Максимальная температура: {day.tempMax}
                 </span>
                 <span>
-                  {day.wind}
+                  Ветер: {day.wind} км/ч
                 </span>
               </div>
             </Link>
