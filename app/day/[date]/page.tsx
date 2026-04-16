@@ -1,24 +1,18 @@
-"use client"
-
-import forecastData from '@/data/forecast.json';
-import { useParams } from 'next/navigation';
-import { findDay, Day } from '@/lib/weather'
 import DayDetail from "@/components/weather/DayDetail/DayDetail";
+import { getWeatherForDay } from "@/app/actions/weather";
+import {notFound} from "next/navigation";
 
-function getSyncForecast(): Day[] {
-  const days: Day[] = forecastData;
-  return days;
-}
+export default async function DayForecast({params}: {params: Promise<{date: string}>}) {
+    const rawParams = await params
+    const searchDate = rawParams.date;
 
-export default function DayForecast() {
-    const params = useParams();
-    const searchDate = params.date;
-    
-    const day = findDay(getSyncForecast(), String(searchDate));
-    if (day) {
-        return (
-            <div>
-                <DayDetail day={day}/>
-            </div>)
+    const day = await getWeatherForDay(searchDate).catch(()=>{return null});
+    if (!day) {
+        return notFound()
     }
+
+    return (<>
+        <DayDetail day={day}/>
+        <p>I am second root component</p>
+    </>)
 }
