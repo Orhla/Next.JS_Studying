@@ -1,6 +1,11 @@
 "use client"
 
-import MaxTemp from "./WeatherStats/MaxTempItem"
+import DisplayMaxTemp from "./WeatherStats/MaxTempItem"
+import DisplayMinTemp from "./WeatherStats/MinTempItem";
+import DisplayDate from "./WeatherStats/DateItem";
+import DisplayDescription from "./WeatherStats/DescriptionItem";
+import DisplayHumidity from "./WeatherStats/HumidityItem";
+import DisplayWind from "./WeatherStats/DisplayWind";
 
 type Props = {
     date: string;
@@ -12,7 +17,13 @@ type Props = {
 }
 
 export default function WeatherStats({date, tempMin, tempMax, description, humidity, wind}: Props) {
-    return (
-            <MaxTemp tempMax={tempMax} />
+    return (<div>
+                <DisplayDate date={date} />
+                <DisplayMinTemp tempMin={tempMin} />
+                <DisplayMaxTemp tempMax={tempMax} />
+                <DisplayDescription description={description} />
+                <DisplayHumidity humidity={humidity} />
+                <DisplayWind wind={wind} />
+            </div>
            );
 }

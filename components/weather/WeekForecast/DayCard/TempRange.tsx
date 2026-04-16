@@ -5,9 +5,9 @@ type Props = {
     tempMax: number
 }
 
-export default function TempRange({tempMin, tempMax}: Props) {
+export default function DisplayTempRange({tempMin, tempMax}: Props) {
     return (<div>
-                Диапазон температуры: {tempMin} - {tempMax}
+                Диапазон температур: {tempMin}°C - {tempMax}°C
             </div>
            );
 }

@@ -18,7 +18,6 @@ export default function DayForecast() {
     if (day) {
         return (
             <div>
-                <p>Forecast: {params.date}</p>
                 <DayDetail day={day}/>
             </div>)
     }
