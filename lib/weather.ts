@@ -1,42 +1,15 @@
-import forecastData from '../data/forecast.json';
+import {Day} from "@/app/actions/types";
 
-export type Day = {
-  date: string;
-  tempMin: number;
-  tempMax: number;
-  description: string;
-  humidity: number;
-  wind: number;
-};
-
-export async function getForecast(): Promise<Day[]> {
-  const days: Day[] = forecastData;
-  return days;
-}
-
-export async function findToday(forecast: Day[]): Promise<Day | null> {
-  const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
-  for (const day of forecast) {
-    if (day.date === todayStr)
-      return day;
-  }
-  return null;
-}
-
-export function findDay(forecast: Day[], searchDate: string | undefined): Day | null {
-  for (const day of forecast) {
-    if (day.date === searchDate)
-      return day;
-  }
-  return null;
-}
-
-export async function calcAverageTemp(forecast: Day[]) {
+export async function calcAverageTemp(days: Day[]): Promise<number> {
   let sumTemp = 0;
-  for (const day of forecast) {
+  // todo: bad ((
+  for (const day of days) {
     sumTemp += day.tempMax;
   }
-  const daysCount = forecast.length;
+  const daysCount = days.length;
   return Math.round(sumTemp / daysCount);
+}
+
+export function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
 }

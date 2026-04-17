@@ -1,14 +1,14 @@
 "use client"
 
-import { Day } from "@/lib/weather"
 import WeatherStats from "./WeatherStats"
+import {Day} from "@/app/actions/types";
 
 type Props = {
     day: Day
 }
 
 export default function DayDetail({day}: Props) {
-    return (<WeatherStats 
+    return (<WeatherStats
                 date={day.date}
                 tempMin={day.tempMin}
                 tempMax={day.tempMax}
