@@ -1,5 +1,3 @@
-import {Region} from "sharp";
-
 export type Day = {
     date: string;
     tempMin: number;

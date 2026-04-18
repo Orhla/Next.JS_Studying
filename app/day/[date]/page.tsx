@@ -1,6 +1,6 @@
-import DayDetail from "@/components/weather/DayDetail/DayDetail";
 import { getWeatherForDay } from "@/app/actions/weather";
 import {notFound} from "next/navigation";
+import DayDetailWrapper from "@/components/weather/DayDetail/DayDetailWrapper";
 
 export default async function DayForecast({params}: {params: Promise<{date: string}>}) {
     const rawParams = await params
@@ -11,8 +11,5 @@ export default async function DayForecast({params}: {params: Promise<{date: stri
         return notFound()
     }
 
-    return (<>
-        <DayDetail day={day}/>
-        <p>I am second root component</p>
-    </>)
+    return (<DayDetailWrapper day={day}/>);
 }
