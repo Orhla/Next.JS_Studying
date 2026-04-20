@@ -9,8 +9,8 @@ type Props = {
     onToggle: () => void
 }
 
-export default function DisplayAverageTemp({avgTemp, unit, onToggle}: Props) {
-    
+export default function AverageTemperature({avgTemp, unit, onToggle}: Props) {
+
     return (<div className="text-center">
                 <div>
                     Средняя температура: {unit === "C" ? `${avgTemp} °C` : `${celsToFahr(avgTemp)} °F`}
