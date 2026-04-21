@@ -13,3 +13,7 @@ export async function calcAverageTemp(days: Day[]): Promise<number> {
 export function formatDate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
+
+export function celsToFahr(cels: number): number {
+  return (cels * 9 / 5) + 32;
+}
