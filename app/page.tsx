@@ -8,7 +8,6 @@ export default async function Home() {
   const averageTemp = await calcAverageTemp(allDaysWeather);
 
   return (
-    <WeatherDashboard forecast={allDaysWeather}
-                      avgTemp={averageTemp}/>
+    <WeatherDashboard avgTemp={averageTemp}/>
   );
 }

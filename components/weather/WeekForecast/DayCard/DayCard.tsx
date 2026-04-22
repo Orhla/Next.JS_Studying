@@ -2,16 +2,17 @@
 
 import { formatDate} from "@/lib/weather"
 import DisplayTempRange from "./TempRange"
+import DisplayWind from "../../DayDetail/WeatherStats/DisplayWind"
 import Link from "next/link"
 import {Day} from "@/app/actions/types";
-import { temperatureUnit } from "@/lib/types";
+import { unitSystem } from "@/lib/types";
 
 type Props = {
     day: Day,
-    unit: temperatureUnit
+    system: unitSystem
 }
 
-export default function DayCard({day, unit}: Props) {
+export default function DayCard({day, system}: Props) {
     const today: string = formatDate(new Date())
 
     return (
@@ -22,7 +23,9 @@ export default function DayCard({day, unit}: Props) {
                 </span>
                 <DisplayTempRange tempMin={day.tempMin}
                                   tempMax={day.tempMax}
-                                  unit={unit} />
+                                  unit={system} />
+                <DisplayWind wind={day.wind}
+                             system={system} />
             </div>
         </Link>)
 }

@@ -17,3 +17,11 @@ export function formatDate(date: Date): string {
 export function celsToFahr(cels: number): number {
   return Math.round((cels * 9 / 5) + 32);
 }
+
+export function kmPerHourToMPerSecond(speed: number): number {
+  return Math.round(speed / 3.6);
+}
+
+export function kmPerHourToMilesPerHour(speed: number): number {
+  return Math.round(speed * 0.6214);
+}
