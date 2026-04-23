@@ -1,18 +1,19 @@
 "use client"
 
 import { celsToFahr } from "@/lib/weather"
+import { temperatureUnit } from "@/lib/types";
 
 type Props = {
-    tempMax: number,
-    unit: "C" | "F"
+    tempMaxCelsius: number,
+    displayUnit: temperatureUnit
 }
 
-export default function DisplayMaxTemp({tempMax, unit}: Props) {
+export default function DisplayMaxTemp({tempMaxCelsius, displayUnit}: Props) {
 
-    const displayTempMax = unit === "C" ? tempMax : celsToFahr(tempMax);
+    const displayTempMax = displayUnit === temperatureUnit.C ? tempMaxCelsius : celsToFahr(tempMaxCelsius);
 
     return (<div>
-                Максимальная температура: {displayTempMax}°{unit}
+                Максимальная температура: {displayTempMax}°{displayUnit}
             </div>
            );
 }

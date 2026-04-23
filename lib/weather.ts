@@ -15,5 +15,5 @@ export function formatDate(date: Date): string {
 }
 
 export function celsToFahr(cels: number): number {
-  return (cels * 9 / 5) + 32;
+  return Math.round((cels * 9 / 5) + 32);
 }
