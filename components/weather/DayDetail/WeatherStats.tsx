@@ -6,27 +6,31 @@ import DisplayDate from "./WeatherStats/DateItem";
 import DisplayDescription from "./WeatherStats/DescriptionItem";
 import DisplayHumidity from "./WeatherStats/HumidityItem";
 import DisplayWind from "./WeatherStats/DisplayWind";
+import { unitSystem } from "@/lib/types";
+import { weatherCodesDescription } from "@/lib/weatherCodes";
 
 type Props = {
     date: string,
-    tempMin: number,
-    tempMax: number,
-    description: string,
+    tempMinCelsius: number,
+    tempMaxCelsius: number,
+    // description: string,
+    description: weatherCodesDescription,
     humidity: number,
     wind: number,
-    unit: "C" | "F"
+    system: unitSystem
 }
 
-export default function WeatherStats({date, tempMin, tempMax, description, humidity, wind, unit}: Props) {
+export default function WeatherStats({date, tempMinCelsius, tempMaxCelsius, description, humidity, wind, system}: Props) {
     return (<div>
                 <DisplayDate date={date} />
-                <DisplayMinTemp tempMin={tempMin}
-                                unit={unit} />
-                <DisplayMaxTemp tempMax={tempMax}
-                                unit={unit} />
+                <DisplayMinTemp tempMinCelsius={tempMinCelsius}
+                                system={system} />
+                <DisplayMaxTemp tempMaxCelsius={tempMaxCelsius}
+                                system={system} />
                 <DisplayDescription description={description} />
                 <DisplayHumidity humidity={humidity} />
-                <DisplayWind wind={wind} />
+                <DisplayWind wind={wind}
+                             system={system} />
             </div>
            );
 }

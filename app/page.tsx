@@ -1,6 +1,6 @@
 import {getAllDaysWeather} from "@/app/actions/weather";
 import {calcAverageTemp} from '@/lib/weather'
-// import WeatherDashboardWrapper from "@/components/weather/WeekForecast/WeatherDashboardWrapper";
+// import WeatherDashboard from "@/components/weather/WeekForecast/WeatherDashboard";
 import WeatherDashboard from "@/components/weather/WeekForecast/WeatherDashboard";
 
 export default async function Home() {
@@ -8,16 +8,6 @@ export default async function Home() {
   const averageTemp = await calcAverageTemp(allDaysWeather);
 
   return (
-    <WeatherDashboard forecast={allDaysWeather}
-                             avgTemp={averageTemp}/>
+    <WeatherDashboard avgTemp={averageTemp}/>
   );
-
-    // return (<>
-    //           <DisplayAverageTemp avgTemp={averageTemp}
-    //                               unit="C"
-    //                               onToggle />
-    //           <WeatherDashboard
-    //               forecast={allDaysWeather}
-    //           />
-    //         </>);
 }

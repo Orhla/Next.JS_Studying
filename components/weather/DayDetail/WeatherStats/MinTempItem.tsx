@@ -1,18 +1,20 @@
 "use client"
 
 import { celsToFahr } from "@/lib/weather"
+import { temperatureUnit, unitSystem } from "@/lib/types";
 
 type Props = {
-    tempMin: number,
-    unit: "C" | "F"
+    tempMinCelsius: number,
+    system: unitSystem
 }
 
-export default function DisplayMinTemp({tempMin, unit}: Props) {
+export default function DisplayMinTemp({tempMinCelsius, system}: Props) {
 
-    const displayTempMin = unit === "C" ? tempMin : celsToFahr(tempMin);
+    const displayTempMin = system === unitSystem.EU ? Math.round(tempMinCelsius) : celsToFahr(tempMinCelsius);
+    const displayUnit = system === unitSystem.EU ? temperatureUnit.C : temperatureUnit.F;
 
     return (<div>
-                Минимальная температура: {displayTempMin}°{unit}
+                Минимальная температура: {displayTempMin}°{displayUnit}
             </div>
            );
 }
