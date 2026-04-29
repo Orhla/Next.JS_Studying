@@ -1,4 +1,4 @@
-export const weatherCodes = {
+export const weatherCodes: Record<number | string, string> = {
     "0": "Clear sky",
     "1": "Mainly clear",
     "2": "Partly cloudy",
@@ -27,6 +27,4 @@ export const weatherCodes = {
     "95": "Slight or moderate thunderstorm",
     "96": "Thunderstorm with slight hail",
     "99": "Thunderstorm with heavy hail",
-} as const;
-
-export type weatherCodesDescription = keyof typeof weatherCodes;
+};

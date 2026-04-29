@@ -7,14 +7,13 @@ import DisplayDescription from "./WeatherStats/DescriptionItem";
 import DisplayHumidity from "./WeatherStats/HumidityItem";
 import DisplayWind from "./WeatherStats/DisplayWind";
 import { unitSystem } from "@/lib/types";
-import { weatherCodesDescription } from "@/lib/weatherCodes";
+import { weatherCodes } from "@/lib/weatherCodes";
 
 type Props = {
     date: string,
     tempMinCelsius: number,
     tempMaxCelsius: number,
-    // description: string,
-    description: weatherCodesDescription,
+    description: string,
     humidity: number,
     wind: number,
     system: unitSystem

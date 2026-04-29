@@ -25,3 +25,7 @@ export function kmPerHourToMPerSecond(speed: number): number {
 export function kmPerHourToMilesPerHour(speed: number): number {
   return Math.round(speed * 0.6214);
 }
+
+export function datetoRussianLocale(dateISO: string): string {
+  return (new Date(Date.parse(dateISO)).toLocaleDateString('ru-RU', {weekday: "long", day: 'numeric', month: 'long', year: 'numeric' }));
+}

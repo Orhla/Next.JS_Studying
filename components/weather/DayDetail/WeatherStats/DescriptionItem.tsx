@@ -1,10 +1,9 @@
 "use client"
 
-import { weatherCodes, weatherCodesDescription } from "@/lib/weatherCodes"
+import { weatherCodes } from "@/lib/weatherCodes"
 
 type Props = {
-    // description: string,
-    description: weatherCodesDescription,
+    description: string
 }
 
 export default function DisplayDescription({description}: Props) {

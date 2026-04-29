@@ -1,7 +1,7 @@
 import { getWeatherForDay } from "@/app/actions/weather";
 import {notFound} from "next/navigation";
 import DayDetail from "@/components/weather/DayDetail/DayDetail";
-import { City, CITIES, unitSystem } from "@/lib/types";
+import { CITIES } from "@/lib/types";
 
 export default async function DayForecast({params}: {params: Promise<{date: string}>}) {
     const rawParams = await params

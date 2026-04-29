@@ -4,7 +4,7 @@ import WeatherStats from "./WeatherStats";
 import {Day} from "@/app/actions/types";
 import { useState } from "react";
 import { unitSystem } from "@/lib/types";
-import { weatherCodes, weatherCodesDescription } from "@/lib/weatherCodes";
+import { weatherCodes } from "@/lib/weatherCodes";
 
 type Props = {
     day: Day
@@ -15,7 +15,7 @@ export default function DayDetail({day}: Props) {
     const toggleUnit = () => setSystem(system === unitSystem.EU ? unitSystem.US : unitSystem.EU);
 
     const isValidCode = day.description in weatherCodes;
-    const safeWeatherCode = isValidCode ? (day.description as string as weatherCodesDescription) : "0";
+    const safeWeatherCode = isValidCode ? day.description : "0";
 
     return (<div className="flex justify-center">
                 <WeatherStats
