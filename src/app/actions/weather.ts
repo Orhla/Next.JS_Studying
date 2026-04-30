@@ -3,11 +3,12 @@ import { City } from "@/lib/types";
 import { notFound } from "next/navigation";
 
 export async function fetchCityWeather(city: City): Promise<CurrentWeather> {
-    let response = null;
-    let weatherData = null;
+    console.log("fetchCityWeather", city);
     try {
-        response = await fetch(buildWeatherUrl(city));
-        weatherData = await response.json();
+        const response = await fetch(buildWeatherUrl(city));
+        // offline, timeout, response 400error, 401, , 500
+        const weatherData = await response.json();
+        // json parsing error.
         return mapCurrentWeather(city.name, weatherData);
     } catch {
         return notFound();

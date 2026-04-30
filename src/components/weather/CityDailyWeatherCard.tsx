@@ -1,6 +1,6 @@
 "use client"
 
-import { fetchCityDailyWeather } from "@/app/api/weather";
+import { fetchCityDailyWeather } from "@/app/actions/weather";
 import { City } from "@/lib/types";
 import { DailyWeather } from "@/lib/weather-api";
 import { weatherCodes } from "@/lib/weatherCodes";

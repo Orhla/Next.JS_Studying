@@ -3,18 +3,35 @@
 import { useState, useEffect } from "react"
 import { City, CITIES } from "@/lib/types"
 import CityWeatherCard from "@/components/weather/CityWeatherCard"
+import { CurrentWeather } from "@/lib/weather-api";
+
 import Link from "next/link"
+import {fetchCityWeather} from "@/app/actions/weather";
 
 const STORAGE_KEY = "additionalCities"
 
-export default function AdditionalCities({ mainCityName }: { mainCityName: string }) {
+export default function AdditionalCities({ available }: { available: City[] }) {
     const [selected, setSelected] = useState<City[]>([])
+    const [citiesWeather, setCitiesWeather] = useState<CurrentWeather[]>([])
+    const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) setSelected(JSON.parse(stored))
+        if (stored) {
+            setSelected(JSON.parse(stored))
+        }
     }, [])
 
+    useEffect(() => {
+        const fetchCitiesWeather = async ()=>{
+            const citiesWeather: CurrentWeather[] = await Promise.all(selected.map((city) =>  fetchCityWeather(city)))
+            setCitiesWeather(citiesWeather)
+        }
+        setLoading(true)
+        fetchCitiesWeather()
+            .catch(() => {window.alert("Something went wrong")})
+            .finally(()=>setLoading(false))
+    }, [selected]);
 
     function toggle(city: City) {
         setSelected(prev => {
@@ -26,7 +43,9 @@ export default function AdditionalCities({ mainCityName }: { mainCityName: strin
         })
     }
 
-    const available = CITIES.filter(c => c.name !== mainCityName)
+    if (loading) {
+        return <div>Загрузка...</div>
+    }
 
     return (
         <div>
@@ -45,13 +64,13 @@ export default function AdditionalCities({ mainCityName }: { mainCityName: strin
             </select>
             {selected.length > 0 && (
                 <ul>
-                    {selected.map(city => (
-                        <div key={city.name}>
-                            <li key={city.name}>
-                                {city.name}
-                                <button onClick={() => toggle(city)}>✕</button>
+                    {citiesWeather.map(weather => (
+                        <div key={weather.cityName}>
+                            <li key={weather.cityName}>
+                                {weather.cityName}
+                                <button onClick={() => toggle(CITIES.find(c=>c.name === weather.cityName))}>✕</button>
                             </li>
-                            <Link href={`/city/${city.name}`}><CityWeatherCard city={city} /></Link>
+                            <Link href={`/city/${weather.cityName}`}><CityWeatherCard weather={weather} /></Link>
                         </div>
                     ))}
                 </ul>
