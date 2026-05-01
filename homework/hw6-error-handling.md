@@ -89,6 +89,64 @@ https://geocoding-api.open-meteo.com/v1/search?name=<CITY-QUERY>&count=5&languag
 
 **2.** Состояния поиска — используй состояние isLoading, error и results. Сделай через несколько независимых состояний.
 
+### Подсказки
+
+**Какие состояния нужны:**
+
+Кроме `isLoading`, `error` и `results` — подумай ещё о двух:
+- строка которую ввёл пользователь (`query`) — чтобы контролировать поле ввода через React
+- что происходит если пользователь ничего не вводил? Это не ошибка и не загрузка — просто пустое начальное состояние
+
+**Как организовать поиск:**
+
+Поиск запускается не автоматически при каждом нажатии клавиши, а по кнопке или Enter. Значит `useEffect` здесь не нужен — достаточно обычной `async` функции которую ты вызываешь при сабмите:
+
+```tsx
+async function handleSearch() {
+    if (!query.trim()) return
+    setIsLoading(true)
+    setError(null)
+    try {
+        const data = await searchCities(query)
+        setResults(data)
+    } catch (e) {
+        setError(e instanceof Error ? e.message : "Что-то пошло не так")
+    } finally {
+        setIsLoading(false)
+    }
+}
+```
+
+Чтобы поиск срабатывал по Enter — добавь на поле ввода `onKeyDown`:
+```tsx
+onKeyDown={e => { if (e.key === "Enter") handleSearch() }}
+```
+
+**Как сохранить город в куки и перейти на главную:**
+
+Куки из клиентского компонента напрямую не поставишь — это делается через server action. Он у тебя уже есть в `set-city/actions.ts`. Импортируй его и вызови при клике на "Выбрать":
+
+```tsx
+import { setCity } from "@/app/set-city/actions"
+import { useRouter } from "next/navigation"
+
+const router = useRouter()
+
+async function handleSelect(city: City) {
+    await setCity(city.name)
+    router.push("/city-weather")
+}
+```
+
+Но есть нюанс: сейчас `setCity` внутри сам делает `redirect("/city-weather")`. Если оставить так — `router.push` никогда не выполнится, а серверный редирект и клиентский будут конфликтовать. Убери `redirect` из `actions.ts` — пусть экшн только пишет куки, а за переход отвечает клиент. Подумай: в чём вообще разница между `redirect()` на сервере и `router.push()` на клиенте?
+
+```tsx
+```
+
+**Где живёт логика запроса:**
+
+Функцию `searchCities(query)` пиши не в компоненте, а в отдельном файле — `lib/geocoding-api.ts`. Компонент только вызывает её и работает со стейтом.
+
 ### Что должно получиться
 
 Пользователь вводит "Токио", нажимает Enter. Видит список результатов с названием и страной. Нажимает на результат — появляется карточка с погодой.
