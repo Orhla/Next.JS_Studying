@@ -1,30 +1,30 @@
 import { cookies } from 'next/headers'
 import AdditionalCities from "@/components/weather/AdditionalCities"
-import { notFound, redirect } from 'next/navigation'
-import { CITIES } from '@/lib/types'
+import { redirect } from 'next/navigation'
+import { City, CITIES } from '@/lib/types'
 import CityWeatherCard from '@/components/weather/CityWeatherCard'
 import Link from 'next/link'
 import {fetchCityWeather} from "@/app/actions/weather";
+import CitySearch from '@/components/weather/CitySearch'
+import { getCityFromCookies } from '@/lib/weather'
 
-export default async function CityCurrentWeather() {
+export default async function CityCurrentWeather() {  
+
   const cookieStore = await cookies()
-  const userCity = cookieStore.get("userCity")
-  if (!userCity) {
+  const userCityCookie = cookieStore.get("userCity")
+  if (!userCityCookie) {
     redirect('/set-city')
   }
-  const userCityName = decodeURIComponent(userCity?.value ?? "Unknown");
-  const city = CITIES.find(c => c.name.toLowerCase() === userCityName.toLowerCase());
-  if (!city) {
-    return notFound();
-  }
-  const available = CITIES.filter(c => c.name !== userCityName)
+  const userCity = getCityFromCookies(userCityCookie?.value)
+  const weather = await fetchCityWeather(userCity)
 
-    const weather = await fetchCityWeather(city)
+  const available = CITIES.filter(c => c.name !== userCity.name)
 
   return (
       <div className="flex flex-col gap-4 w-180 mx-auto">
-        <p>Вы выбрали город {userCityName}</p>
-        <Link href={`/city/${userCityName}`}><CityWeatherCard weather={weather} /></Link>
+        <CitySearch />
+        <p>Вы выбрали город {userCity.name}</p>
+        <Link href={`/city/${userCity.id}`}><CityWeatherCard weather={weather} /></Link>
         <AdditionalCities available={available} />
       </div>
   )

@@ -1,5 +1,4 @@
 import { City } from "./types"
-import { notFound } from "next/navigation"
 
 export type CurrentWeather = {
     cityName: string,
@@ -39,17 +38,33 @@ type WeatherDailyDataResponse = {
     }
 }
 
-export function buildWeatherUrl(city: City, type: string='current'): string {
-    // const baseUrl = 'https://api.open-meteo.com/v1/forecast';
-    // const params = new URLSearchParams({
-    //     latitude: city.latitude.toString(),
-    //     longitude: city.longitude.toString(),
-    //     daily: 'temperature_2m_max,temperature_2m_min,wind_speed_10m_max,weather_code,relative_humidity_2m_max',
-    //     timezone: 'auto'
-    // });
-    // return `${baseUrl}?${params.toString()}`;
-    const urlPath = 'https://api.open-meteo.com/v1/forecast?'
-    return `${urlPath}latitude=${city.latitude}&longitude=${city.longitude}&${type}=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`;
+type CitySearchResponse = {
+    results?: {
+        id: number;
+        name: string;
+        country: string;
+        latitude: number;
+        longitude: number;
+    }[]
+}
+
+type CityIDSearchResponse = {
+        id: number;
+        name: string;
+        country: string;
+        latitude: number;
+        longitude: number;
+}
+
+export function buildWeatherUrl(city: City): string {
+    const baseUrl = 'https://api.open-meteo.com/v1/forecast';
+    const params = new URLSearchParams({
+        latitude: city.latitude.toString(),
+        longitude: city.longitude.toString(),
+        current: 'temperature_2m,wind_speed_10m,weather_code,relative_humidity_2m',
+        timezone: 'auto'
+    });
+    return `${baseUrl}?${params.toString()}`;
 }
 
 export function buildWeekWeatherUrl(city: City): string {
@@ -63,10 +78,31 @@ export function buildWeekWeatherUrl(city: City): string {
     return `${baseUrl}?${params.toString()}`;
 }
 
+export function buildCitySearchUrl(cityName: string): string {
+    const baseUrl = 'https://geocoding-api.open-meteo.com/v1/search';
+    const params = new URLSearchParams({
+        name: cityName,
+        count: "5",
+        language: "ru",
+        format: "json"
+    });
+    return `${baseUrl}?${params.toString()}`;
+}
+
+export function buildCityIDSearchUrl(cityID: string): string {
+    const baseUrl = 'https://geocoding-api.open-meteo.com/v1/get';
+    const params = new URLSearchParams({
+        id: cityID,
+        language: "ru",
+        format: "json"
+    });
+    return `${baseUrl}?${params.toString()}`;
+}
+
 export function mapCurrentWeather(cityName: string, data: unknown): CurrentWeather {
     if (!data || typeof data !== "object") {
         console.log("Не пришли данные или пришли не те данные, что нужны", data);
-        return notFound();
+        throw Error("Не пришли данные или пришли не те данные, что нужны");
     }
     
     try {
@@ -76,20 +112,19 @@ export function mapCurrentWeather(cityName: string, data: unknown): CurrentWeath
                                             humidity: parsedData.current.relative_humidity_2m, windSpeed: parsedData.current.wind_speed_10m
                                             };
         return currentWeatherForCity;
-    } catch (error: unknown) {
+    } catch (error) {
         if (error instanceof SyntaxError) {
-            console.log("Not a JSON file");
-            return notFound();
+            throw Error("Not a JSON file", error);
         }
         console.log("Unknown error: ", String(error));
-        return notFound();
+        throw Error("Unknown error");
     }
 }
 
 export function mapDailyWeather(cityName: string, data: unknown): DailyWeather[] {
     if (!data || typeof data !== "object") {
         console.log("Не пришли данные или пришли не те данные, что нужны", data);
-        return notFound();
+        throw Error("Не пришли данные или пришли не те данные, что нужны");
     }
     
     try {
@@ -105,10 +140,56 @@ export function mapDailyWeather(cityName: string, data: unknown): DailyWeather[]
         }));
     } catch (error: unknown) {
         if (error instanceof SyntaxError) {
-            console.log("Not a JSON file");
-            return notFound();
+            throw Error("Not a JSON file", error);
         }
         console.log("Unknown error: ", String(error));
-        return notFound();
+        throw Error("Unknown error");
     }
 }
+
+export function mapCitySearch(cityName: string, data: unknown): City[] {
+    if (!data || typeof data !== "object") {
+        console.log("Не пришли данные или пришли не те данные, что нужны", data);
+        throw Error("Не пришли данные или пришли не те данные, что нужны");
+    }
+
+    try {
+        const parsedData = data as CitySearchResponse;
+        if (!parsedData.results) return [];
+        return parsedData.results.map((city) => ({
+            id: city.id,
+            name: city.name,
+            country: city.country,
+            latitude: city.latitude,
+            longitude: city.longitude
+        }));
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            throw Error("Not a JSON file", error);
+        }
+        console.log("Unknown error: ", String(error));
+        throw Error("Unknown error");
+    }
+}
+
+
+export function mapCityIDSearch(cityID: string, data: unknown): City {
+    if (!data || typeof data !== "object") {
+        console.log("Не пришли данные или пришли не те данные, что нужны", data);
+        throw Error("Не пришли данные или пришли не те данные, что нужны");
+    }
+
+    try {
+        const parsedData = data as CityIDSearchResponse;
+        const city: City = {country: parsedData.country, id: parsedData.id, latitude: parsedData.latitude,
+                            longitude: parsedData.longitude, name: parsedData.name}
+        return city;      
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            throw Error("Not a JSON file", error);
+        }
+        console.log("Unknown error: ", String(error));
+        throw Error("Unknown error");
+    }
+}
+

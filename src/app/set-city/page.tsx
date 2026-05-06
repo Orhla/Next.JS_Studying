@@ -1,4 +1,4 @@
-import CitySelectorForm from "./CitySelectorForm"
+import CitySelectorForm from "@/components/weather/CitySelectorForm"
 
 export default function SetCityPage() {
     return (

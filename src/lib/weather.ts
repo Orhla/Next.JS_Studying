@@ -1,4 +1,5 @@
 import {Day} from "@/app/actions/types";
+import { City } from "@/lib/types";
 
 export async function calcAverageTemp(days: Day[]): Promise<number> {
   let sumTemp = 0;
@@ -29,3 +30,17 @@ export function kmPerHourToMilesPerHour(speed: number): number {
 export function datetoRussianLocale(dateISO: string): string {
   return (new Date(Date.parse(dateISO)).toLocaleDateString('ru-RU', {weekday: "long", day: 'numeric', month: 'long', year: 'numeric' }));
 }
+
+export function getCityFromCookies(cookieValue: string): City {
+    try {
+      return JSON.parse(decodeURIComponent(cookieValue)) as City;
+    }
+    catch (error) {
+      if (error instanceof SyntaxError) {
+          console.error("Not a JSON file", error);
+          throw Error("Not a JSON file", error);
+      }
+      console.error("Unknown error: ", String(error));
+      throw Error("Unknown error");
+    }
+  }
