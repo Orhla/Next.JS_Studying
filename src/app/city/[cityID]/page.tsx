@@ -1,14 +1,19 @@
 import CityDailyWeatherCard from "@/components/weather/CityDailyWeatherCard";
 import { notFound } from "next/navigation";
-import {fetchCityWeather, fetchCityIDSearch} from "@/app/actions/weather";
+import {getCityWeatherAction, fetchCityIDSearch} from "@/app/actions/weather";
 
 export default async function CityWeekForecast({params}: {params: Promise<{cityID: string}>}) {
     const rawParams = await params
-    const city = await fetchCityIDSearch(rawParams.cityID);
-    if (!city) {
+    let city
+    try {
+        city = await fetchCityIDSearch(rawParams.cityID);
+    } catch (error) {
         return notFound();
     }
-    await fetchCityWeather(city)
+    // if (!city) {
+    //     return notFound();
+    // }
+    await getCityWeatherAction(city)
 
     return (<CityDailyWeatherCard city={city} />)
 }

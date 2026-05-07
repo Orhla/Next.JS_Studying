@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react"
 import { City, CITIES } from "@/lib/types"
 import CityWeatherCard from "@/components/weather/CityWeatherCard"
-import { CurrentWeather } from "@/lib/weather-api";
+import {CurrentWeather, fetchCityWeather} from "@/lib/weather-api";
 
 import Link from "next/link"
-import {fetchCityWeather} from "@/app/actions/weather";
+import {getCityWeatherAction} from "@/app/actions/weather";
 
 const STORAGE_KEY = "additionalCities"
 

@@ -56,7 +56,9 @@ type CityIDSearchResponse = {
         longitude: number;
 }
 
-export function buildWeatherUrl(city: City): string {
+export class WeatherError extends Error {}
+
+function buildWeatherUrl(city: City): string {
     const baseUrl = 'https://api.open-meteo.com/v1/forecast';
     const params = new URLSearchParams({
         latitude: city.latitude.toString(),
@@ -65,6 +67,15 @@ export function buildWeatherUrl(city: City): string {
         timezone: 'auto'
     });
     return `${baseUrl}?${params.toString()}`;
+}
+
+export async function fetchCityWeather(city: City): Promise<CurrentWeather> {
+    const response = await fetch(buildWeatherUrl(city));
+    if (!response.ok) {
+        throw new WeatherError(`Ошибка запроса: ${response.status}`)
+    }
+    const weatherData = await response.json();
+    return mapCurrentWeather(city.name, weatherData);
 }
 
 export function buildWeekWeatherUrl(city: City): string {
@@ -99,26 +110,28 @@ export function buildCityIDSearchUrl(cityID: string): string {
     return `${baseUrl}?${params.toString()}`;
 }
 
-export function mapCurrentWeather(cityName: string, data: unknown): CurrentWeather {
+function mapCurrentWeather(cityName: string, data: unknown): CurrentWeather {
     if (!data || typeof data !== "object") {
-        console.log("Не пришли данные или пришли не те данные, что нужны", data);
-        throw Error("Не пришли данные или пришли не те данные, что нужны");
+        console.error("Не пришли данные или пришли не те данные, что нужны", data);
+        throw WeatherError("Не пришли данные или пришли не те данные, что нужны");
     }
-    
-    try {
-        const parsedData = data as WeatherDataResponse;
-        const currentWeatherForCity: CurrentWeather = {
-                                            cityName: cityName, temperature: parsedData.current.temperature_2m, weatherCode: parsedData.current.weather_code, 
-                                            humidity: parsedData.current.relative_humidity_2m, windSpeed: parsedData.current.wind_speed_10m
-                                            };
-        return currentWeatherForCity;
-    } catch (error) {
-        if (error instanceof SyntaxError) {
-            throw Error("Not a JSON file", error);
-        }
-        console.log("Unknown error: ", String(error));
-        throw Error("Unknown error");
+    if (!("current" in data) || typeof data.current !== "object" || data.current === null) {
+        console.error("Нет данных о текущей погоде", data);
+        throw WeatherError("Нет данных о текущей погоде");
     }
+
+    if (!("temperature_2m" in data.current) || !(typeof data.current.temperature_2m === "number")) {
+        console.error("Wrong data.current format", data.current);
+        throw WeatherError("Wrong data.current format");
+    }
+
+    return  {
+        cityName: cityName,
+        temperature: data.current.temperature_2m, // good example
+        weatherCode: data.current.weather_code as  number, // todo: bad. fix me
+        humidity: data.current.relative_humidity_2m as  number,
+        windSpeed: data.current.wind_speed_10m as  number
+    } satisfies CurrentWeather;
 }
 
 export function mapDailyWeather(cityName: string, data: unknown): DailyWeather[] {
@@ -126,7 +139,7 @@ export function mapDailyWeather(cityName: string, data: unknown): DailyWeather[]
         console.log("Не пришли данные или пришли не те данные, что нужны", data);
         throw Error("Не пришли данные или пришли не те данные, что нужны");
     }
-    
+
     try {
         const parsedData = data as WeatherDailyDataResponse;
         return parsedData.daily.time.map((date, index) => ({
@@ -183,7 +196,7 @@ export function mapCityIDSearch(cityID: string, data: unknown): City {
         const parsedData = data as CityIDSearchResponse;
         const city: City = {country: parsedData.country, id: parsedData.id, latitude: parsedData.latitude,
                             longitude: parsedData.longitude, name: parsedData.name}
-        return city;      
+        return city;
     } catch (error) {
         if (error instanceof SyntaxError) {
             throw Error("Not a JSON file", error);
