@@ -6,7 +6,6 @@ import CityWeatherCard from "@/components/weather/CityWeatherCard"
 import {CurrentWeather, fetchCityWeather} from "@/lib/weather-api";
 
 import Link from "next/link"
-import {getCityWeatherAction} from "@/app/actions/weather";
 
 const STORAGE_KEY = "additionalCities"
 

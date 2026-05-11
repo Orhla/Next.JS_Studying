@@ -1,10 +1,10 @@
 "use client"
 
-import { fetchCitySearch } from "@/app/actions/weather";
 import { City } from "@/lib/types";
 import { useState } from "react";
 import { setCity } from "@/app/actions/actions";
 import { useRouter } from "next/navigation"
+import { fetchCitySearch } from "@/lib/geocoding-api";
 
 export default function CitySearch() {
 
