@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers'
 import AdditionalCities from "@/components/weather/AdditionalCities"
 import { redirect } from 'next/navigation'
-import { City, CITIES } from '@/lib/types'
+import { CITIES } from '@/lib/types'
 import CityWeatherCard from '@/components/weather/CityWeatherCard'
 import Link from 'next/link'
-import {getCityWeatherAction} from "@/app/actions/weather";
 import CitySearch from '@/components/weather/CitySearch'
 import { getCityFromCookies } from '@/lib/weather'
+import { fetchCityWeather } from '@/lib/weather-api'
 
 export default async function CityCurrentWeather() {
 
@@ -16,7 +16,7 @@ export default async function CityCurrentWeather() {
     redirect('/set-city')
   }
   const userCity = getCityFromCookies(userCityCookie?.value)
-  const weather = await getCityWeatherAction(userCity)
+  const weather = await fetchCityWeather(userCity)
 
   const available = CITIES.filter(c => c.name !== userCity.name)
 

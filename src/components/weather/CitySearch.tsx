@@ -39,13 +39,14 @@ export default function CitySearch() {
     //     return <div>Загрузка...</div>
     // }
 
-    if (error) {
-        return <div>Произошла ошибка: {error}</div>
-    }
+    // if (error) {
+    //     return <div>Произошла ошибка: {error}</div>
+    // }
     console.log("loading", loading);
     return (
     <div className="relative flex-column flex-1 shrink-0 gap-4">
-        <p>{loading ?? "Loading..."}</p>
+        <p>{loading && "Загрузка..."}</p>
+        <p>{error && `Ошибка ${error}`}</p>
         <div className="flex flex-1 shrink-0 gap-4">
             <input
                 className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"

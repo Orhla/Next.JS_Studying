@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { City, CITIES } from "@/lib/types"
+import { City } from "@/lib/types"
 import CityWeatherCard from "@/components/weather/CityWeatherCard"
 import {CurrentWeather, fetchCityWeather} from "@/lib/weather-api";
 
@@ -13,6 +13,7 @@ export default function AdditionalCities({ available }: { available: City[] }) {
     const [selected, setSelected] = useState<City[]>([])
     const [citiesWeather, setCitiesWeather] = useState<CurrentWeather[]>([])
     const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY)
@@ -27,9 +28,10 @@ export default function AdditionalCities({ available }: { available: City[] }) {
             setCitiesWeather(citiesWeather)
         }
         setLoading(true)
+        setError(null)
         fetchCitiesWeather()
-            .catch(() => {window.alert("Something went wrong")})
-            .finally(()=>setLoading(false))
+            .catch((e) => {setError(e instanceof Error ? e.message : "Что-то пошло не так")})
+            .finally(() => setLoading(false))
     }, [selected]);
 
     function toggle(city: City) {
@@ -67,7 +69,7 @@ export default function AdditionalCities({ available }: { available: City[] }) {
                         <div key={weather.cityName}>
                             <li key={weather.cityName}>
                                 {weather.cityName}
-                                <button onClick={() => toggle(CITIES.find(c=>c.name === weather.cityName))}>✕</button>
+                                <button onClick={() => toggle(available.find(c=>c.name === weather.cityName))}>✕</button>
                             </li>
                             <Link href={`/city/${weather.cityName}`}><CityWeatherCard weather={weather} /></Link>
                         </div>

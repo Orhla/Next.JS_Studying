@@ -1,8 +1,7 @@
 "use client"
 
-import { getCityDailyWeatherAction } from "@/app/actions/weather";
 import { City } from "@/lib/types";
-import { DailyWeather } from "@/lib/weather-api";
+import { DailyWeather, fetchCityDailyWeather } from "@/lib/weather-api";
 import { weatherCodes } from "@/lib/weatherCodes";
 import { useEffect, useState } from "react";
 import { datetoRussianLocale } from "@/lib/weather";
@@ -20,7 +19,7 @@ export default function CityDailyWeatherCard({city}: Props) {
     const [status, setStatus] = useState<Status>({ kind: "loading" });
 
     useEffect(() => {
-        getCityDailyWeatherAction(city).then(data => {setStatus({kind: "ready", weather: data})})
+        fetchCityDailyWeather(city).then(data => {setStatus({kind: "ready", weather: data})})
                                 .catch(err => {setStatus({kind: "error", message: err.message})})
     }, [city]);
 

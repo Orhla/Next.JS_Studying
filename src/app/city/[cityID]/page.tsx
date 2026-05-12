@@ -1,6 +1,5 @@
 import CityDailyWeatherCard from "@/components/weather/CityDailyWeatherCard";
 import { notFound } from "next/navigation";
-import {getCityWeatherAction} from "@/app/actions/weather";
 import { fetchCityIDSearch } from "@/lib/geocoding-api";
 
 export default async function CityWeekForecast({params}: {params: Promise<{cityID: string}>}) {
@@ -9,12 +8,9 @@ export default async function CityWeekForecast({params}: {params: Promise<{cityI
     try {
         city = await fetchCityIDSearch(rawParams.cityID);
     } catch (error) {
-        return notFound();
+        console.error(error);
+        notFound();
     }
-    // if (!city) {
-    //     return notFound();
-    // }
-    await getCityWeatherAction(city)
 
     return (<CityDailyWeatherCard city={city} />)
 }
