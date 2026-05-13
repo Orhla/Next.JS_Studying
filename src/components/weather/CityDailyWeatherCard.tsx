@@ -1,8 +1,7 @@
 "use client"
 
-import { fetchCityDailyWeather } from "@/app/actions/weather";
 import { City } from "@/lib/types";
-import { DailyWeather } from "@/lib/weather-api";
+import { DailyWeather, fetchCityDailyWeather } from "@/lib/weather-api";
 import { weatherCodes } from "@/lib/weatherCodes";
 import { useEffect, useState } from "react";
 import { datetoRussianLocale } from "@/lib/weather";
