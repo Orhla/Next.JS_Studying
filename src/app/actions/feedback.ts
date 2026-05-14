@@ -24,7 +24,7 @@ export async function submitFeedbackValidation(data: unknown): Promise<ActionRes
             return {success: false, error: "Некорректный формат погоды. Погода может принимать значения: 'Солнечно', 'Облачно', 'Дождь'."}
         }
         console.log("Saving to prisma")
-        await prisma.Feedback.create({
+        await prisma.feedback.create({
             data: {
                 name: data.userName,
                 temperature: data.temperature,
