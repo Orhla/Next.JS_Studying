@@ -2,19 +2,29 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+Запусти базу данных:
+
+```bash
+docker compose up -d
+```
+
+Затем сервер разработки:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Prisma — команды для базы данных
+
+| Команда | Что делает |
+|---------|-----------|
+| `npm run prisma:push` | Применяет схему к базе. Запускай после изменений в `schema.prisma` |
+| `npm run prisma:generate` | Генерирует TypeScript-клиент. Запускай после `prisma:push` |
+| `npm run prisma:studio` | Открывает визуальный редактор базы на http://localhost:5555 |
+
+Порядок при первом запуске: `prisma:push` → `prisma:generate` → `npm run dev`.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

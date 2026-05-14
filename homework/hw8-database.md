@@ -36,60 +36,35 @@ docker compose version
 
 ## Часть 1: Поднимаем базу данных
 
-Создай файл `docker-compose.yml` в корне проекта:
-
-```yaml
-services:
-  db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: weather_app
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-```
-
-Запусти контейнер:
+`docker-compose.yml` мы разбирали на уроке — он уже есть в репозитории. Тебе нужно только запустить контейнер на своей машине:
 
 ```bash
 docker compose up -d
 ```
 
-Флаг `-d` запускает в фоне. Чтобы проверить что база работает:
+Флаг `-d` запускает в фоне. Проверь в Docker Desktop — контейнер `db` должен быть зелёным.
 
-```bash
-docker compose ps
-```
-
-Должна быть строчка с `db` и статусом `running`.
-
-> `postgres-data/` — папка куда Docker сохраняет данные базы. Она появится в корне проекта. Добавь её в `.gitignore` — там лежат бинарные данные PostgreSQL, им не место в репозитории.
+> `postgres-data/` — папка куда Docker сохраняет данные базы. Она появится в корне проекта.
 
 ---
 
 ## Часть 2: Устанавливаем Prisma
 
+На уроке мы это делали вместе — повтори на своей машине:
+
 ```bash
-npm install prisma @prisma/client @prisma/adapter-pg
 npx prisma init
 ```
 
-Команда `prisma init` создаст два файла:
-- `prisma/schema.prisma` — схема базы данных
-- `.env` — файл с переменными окружения (если не было)
+`prisma init` создаст `prisma/schema.prisma` и добавит `DATABASE_URL` в `.env`.
 
 ### Настрой `.env`
 
-Открой `.env` и замени строку `DATABASE_URL` на:
+Открой `.env` и убедись что `DATABASE_URL` выглядит вот так — **без кавычек**:
 
 ```
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/weather_app
 ```
-
-> Кавычки не нужны — просто значение без кавычек.
 
 Убедись что `.env` есть в `.gitignore`. Туда попадает пароль от базы — он не должен уходить в репозиторий.
 
@@ -97,7 +72,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/weather_app
 
 ## Часть 3: Схема базы данных
 
-Открой `prisma/schema.prisma` и замени содержимое на:
+`prisma/schema.prisma` уже создан на уроке, ничего делать не нужно. Для справки — он выглядит так:
 
 ```prisma
 generator client {
@@ -119,21 +94,11 @@ model Feedback {
 }
 ```
 
-Создай таблицу в базе и сгенерируй клиент:
-
-```bash
-npx prisma db push
-npx prisma generate
-```
-
-`db push` — создаёт таблицы по схеме. Для разработки это проще чем миграции (о них поговорим позже).  
-`prisma generate` — генерирует TypeScript-клиент в `src/generated/prisma/`.
-
 ---
 
 ## Часть 4: Prisma клиент — `lib/prisma.ts`
 
-Создай файл `src/lib/prisma.ts`:
+Этот файл мы писали на уроке. Убедись что `src/lib/prisma.ts` выглядит вот так:
 
 ```ts
 import { PrismaPg } from '@prisma/adapter-pg'
@@ -151,85 +116,80 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-Почему такая конструкция с `globalThis`? В режиме разработки Next.js перезагружает модули при каждом изменении файла. Без этого трюка каждая перезагрузка создавала бы новое соединение с базой — и за несколько часов работы их накопились бы сотни.
-
 ---
 
-## Часть 5: Проверь Prisma Studio
+## Часть 5: Запускаем и проверяем
+
+Запусти по порядку — это мы делали на уроке:
 
 ```bash
-npx prisma studio
+npm run prisma:push
+```
+Создаёт таблицы в базе по схеме. Для разработки это проще чем миграции — о них поговорим позже.
+
+```bash
+npm run prisma:generate
+```
+Генерирует TypeScript-клиент в `src/generated/prisma/`. Запускай каждый раз после изменения схемы.
+
+```bash
+npm run dev
 ```
 
-Открой `http://localhost:5555`. Ты увидишь таблицу `Feedback` — пока пустую. Можно добавить строку вручную и убедиться что база работает.
+### ✅ Контрольная точка
+
+Прежде чем писать новый код — убедись что всё работает:
+
+1. Открой страницу любого города
+2. Заполни форму фидбэка и отправь
+3. Запусти `npm run prisma:studio` и открой `http://localhost:5555`
+4. В таблице `Feedback` должна появиться запись
+
+Если запись есть — установка прошла успешно. Дальше — новый код.
 
 ---
 
-## Часть 6: Server Action — пишем в базу
+## Часть 6: Email-уведомление для администратора
 
-Замени содержимое `src/app/actions/feedback.ts`. Теперь server action должен валидировать данные И писать в базу — всё в одном месте:
+`lib/email.ts` никуда не девается — но его роль меняется. Раньше письмо было единственным способом сохранить фидбэк. Теперь источник правды — база данных, а письмо стало уведомлением: "внимание, пришёл новый фидбэк".
+
+Обнови `src/app/actions/feedback.ts` — после записи в базу вызывай отправку письма:
 
 ```ts
-"use server"
+await prisma.feedback.create({ ... })
+await sendFeedbackEmail({ name: data.name, temperature: data.temperature, weather: data.weather })
+```
 
-import { prisma } from '@/lib/prisma'
+**Важно:** если письмо не отправилось — это не повод возвращать ошибку пользователю. Его фидбэк уже сохранён в базе. Оберни вызов email отдельно:
 
-type ActionResult =
-    | { success: true }
-    | { success: false; error: string }
+```ts
+await prisma.feedback.create({ data: { ... } })
 
-export async function submitFeedback(data: {
-    name: string
-    temperature: number
-    weather: string
-}): Promise<ActionResult> {
-    try {
-        if (data.name.length < 2) {
-            return { success: false, error: 'Имя слишком короткое' }
-        }
-
-        if (typeof data.temperature !== 'number' || data.temperature < -50 || data.temperature > 50) {
-            return { success: false, error: 'Температура должна быть числом от -50 до 50' }
-        }
-
-        const validWeather = ['sunny', 'cloudy', 'rainy']
-        if (!validWeather.includes(data.weather)) {
-            return { success: false, error: 'Некорректный тип погоды' }
-        }
-
-        await prisma.feedback.create({
-            data: {
-                name: data.name,
-                temperature: data.temperature,
-                weather: data.weather,
-            }
-        })
-
-        return { success: true }
-
-    } catch {
-        return { success: false, error: 'Ошибка сервера' }
-    }
+try {
+    await sendFeedbackEmail({ ... })
+} catch {
+    console.error('Не удалось отправить уведомление на почту')
 }
+
+return { success: true }
 ```
+
+**Слои выглядят так:**
+
+```
+lib/email.ts          — отправляет письмо. Не знает о форме, не знает о базе
+lib/prisma.ts         — клиент базы данных. Не знает об email
+actions/feedback.ts   — координирует: валидирует → пишет в базу → уведомляет
+FeedbackForm.tsx      — вызывает только server action. Больше ничего
+```
+
+`FeedbackForm` не должна знать ни про базу, ни про email — это детали реализации. Она просто отправляет данные и получает `{ success: true }` или ошибку.
 
 ---
 
-## Часть 7: Обновляем форму — `FeedbackForm.tsx`
+## Часть 7: Читаем из базы — компонент `FeedbackList`
 
-Форма теперь вызывает `submitFeedback` вместо двух отдельных функций. Убери импорт `sendFeedbackEmail` — он больше не нужен. Логика в форме должна упроститься:
-
-```ts
-const result = await submitFeedback({ name, temperature: Number(temperature), weather })
-```
-
-> Обрати внимание: `temperature` в форме хранится как строка (`useState('')`), но в базу пишется как число. Конвертация `Number(temperature)` происходит один раз — при отправке.
-
----
-
-## Часть 8: Читаем из базы — компонент `FeedbackList`
-
-Создай `src/components/feedback/FeedbackList.tsx`.
+Создай `src/components/feedback/FeedbackList.tsx` — этого файла у тебя ещё нет.
 
 Это **серверный компонент** — он сам запрашивает данные из базы, не нужно никаких `useState` и `useEffect`.
 
@@ -271,7 +231,7 @@ export default async function FeedbackList() {
 
 ---
 
-## Часть 9: Добавляем на страницу города
+## Часть 8: Добавляем на страницу города
 
 Обнови `src/app/city/[cityID]/page.tsx` — добавь `FeedbackList` под формой:
 
