@@ -1,7 +1,7 @@
 "use client"
 
 import { submitFeedbackValidation } from '@/app/actions/feedback'
-import { sendFeedbackEmail } from '@/lib/email'
+import { validWeather } from '@/app/actions/types'
 import { useState } from 'react'
 
 export default function FeedbackForm() {
@@ -40,7 +40,6 @@ export default function FeedbackForm() {
         try {
             const result = await submitFeedbackValidation({"userName": userName, "temperature": temperature, "weather": weather});
             if (result.success) {
-                await sendFeedbackEmail({"userName": userName, "temperature": temperature, "weather": weather});
                 setSuccess(true);
             }
             else {
@@ -48,7 +47,8 @@ export default function FeedbackForm() {
                 setSuccess(false);
             }
         } catch (error) {
-            setServerError(`Ошибка при отправке данных на сервер: ${error}`);
+            setServerError(error instanceof Error ? error.message : 'Неизвестная ошибка')
+            console.error(`Ошибка при отправке данных на сервер: ${error}`);
         } finally {
             setIsLoading(false);
         }    
@@ -71,21 +71,21 @@ export default function FeedbackForm() {
                         type="number"
                         value={temperature}
                         className="border border-gray-300 p-2 rounded-md"
-                        onChange={(e) => setTemperature(Number(e.target.value))} />
+                        onChange={(e) => {
+                            setTemperature(Number(e.target.value))}} />
                 </label>
 
                 <label>Фактическая погода: <select name="weather"
                                                 value={weather} 
                                                 className="border border-gray-300 p-2 rounded-md"
                                                 onChange={(e) => setWeather(e.target.value)}>
-                                                <option value="sunny">Солнечно</option>
-                                                <option value="cloudy">Облачно</option>
-                                                <option value="rainy">Дождь</option>
+                                                    {Object.entries(validWeather).map(([key, value]) => (
+                                                        <option key={key} value={key}>{value}</option>
+                                                    ))}
                                         </select></label>
 
                 {clientError && <p className="text-red-500">{clientError}</p>}
                 {serverError && <p className="text-red-500">{serverError}</p>}
-                {/* {success && <p className="text-green-500">Спасибо! Мы получили Ваш отзыв.</p>} */}
 
                 <button type="submit"
                         disabled={isLoading}

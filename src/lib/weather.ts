@@ -1,4 +1,4 @@
-import {Day} from "@/app/actions/types";
+import {Day, validWeather} from "@/app/actions/types";
 import { City } from "@/lib/types";
 
 export async function calcAverageTemp(days: Day[]): Promise<number> {
@@ -43,4 +43,11 @@ export function getCityFromCookies(cookieValue: string): City {
       console.error("Unknown error: ", String(error));
       throw Error("Unknown error");
     }
-  }
+}
+
+export function validateWeatherString(weather: string): string {
+    if (weather in validWeather) {
+        return validWeather[weather as keyof typeof validWeather];
+    }
+    return weather;
+}
