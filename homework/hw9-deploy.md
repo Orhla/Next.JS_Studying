@@ -149,6 +149,8 @@ import '@testing-library/jest-dom'
 
 ## Часть 7: Тесты — библиотечные функции
 
+> **Документация:** [Vitest — Getting Started](https://vitest.dev/guide/) · [Vitest API (describe/it/expect)](https://vitest.dev/api/)
+
 Создай `src/test/lib/weatherCodes.test.ts`.
 
 Вот один тест для примера — остальные напиши сама:
@@ -161,20 +163,45 @@ describe('weatherCodes', () => {
     it('возвращает строку для известного кода', () => {
         expect(weatherCodes[0]).toBe('Ясно')
     })
+
+    it('возвращает правильное описание для дождя', () => {
+        expect(weatherCodes[___]).toBe('___')
+    })
+
+    it('возвращает undefined для несуществующего кода', () => {
+        expect(weatherCodes[___]).toBe(___)
+    })
 })
 ```
 
-Что ещё нужно покрыть:
-- Несколько разных кодов (дождь, снег, гроза)
-- Что возвращается для неизвестного кода
+Дальше — напиши тесты для `getWeatherEmoji` в отдельном файле `src/test/lib/weather.test.ts`. Сначала вынеси функцию в `src/lib/weather.ts`, иначе не импортировать.
 
-Дальше — напиши тесты для `getWeatherEmoji` (она сейчас продублирована в двух компонентах — самое время вынести её в `src/lib/weather.ts` и тестировать оттуда).
+```ts
+describe('getWeatherEmoji', () => {
+    it('возвращает ☀️ для ясной погоды', () => {
+        expect(getWeatherEmoji(0)).toBe('☀️')
+    })
 
-Проверь граничные случаи: код `0`, код `99`, код которого нет в маппинге.
+    it('возвращает правильный эмодзи для снега', () => {
+        // коды 71–77
+        expect(getWeatherEmoji(___)).toBe(___)
+    })
+
+    it('возвращает одинаковый эмодзи для всех кодов дождя', () => {
+        // коды 61, 63, 65 — все должны быть 🌧️
+        const codes = [___, ___, ___]
+        codes.forEach(code => expect(getWeatherEmoji(code)).toBe('🌧️'))
+    })
+})
+```
+
+Проверь граничные случаи: что происходит на границах диапазонов (код `2` и `3`, код `48` и `51`).
 
 ---
 
 ## Часть 8: Тесты — компоненты
+
+> **Документация:** [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) · [Запросы: getByText, getByRole и другие](https://testing-library.com/docs/queries/about)
 
 Создай `src/test/components/CityWeatherCard.test.tsx`.
 
@@ -182,6 +209,7 @@ React Testing Library работает так: рендеришь компоне
 
 ```ts
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import CityWeatherCard from '@/components/weather/CityWeatherCard'
 
 const mockWeather = {
@@ -191,18 +219,58 @@ const mockWeather = {
     humidity: 65,
     windSpeed: 12.3,
 }
+
+describe('CityWeatherCard', () => {
+    it('отображает название города', () => {
+        render(<CityWeatherCard weather={mockWeather} />)
+        expect(screen.getByText('Берлин')).toBeInTheDocument()
+    })
+
+    it('округляет температуру', () => {
+        render(<CityWeatherCard weather={mockWeather} />)
+        expect(screen.getByText(/19°C/)).toBeInTheDocument()
+        expect(screen.queryByText(/18.7/)).not.toBeInTheDocument()
+    })
+})
 ```
 
-Что нужно проверить для `CityWeatherCard`:
-- Название города отображается
-- Температура округляется (`18.7` → `19°C`)
-- Влажность и ветер присутствуют на странице
+`screen.getByText` — найти элемент по тексту. `/19°C/` — это регулярное выражение, ищет подстроку.  
+`queryByText` возвращает `null` если элемент не найден (в отличие от `getByText` который бросает ошибку) — удобно для проверки отсутствия.
 
-Дальше — напиши тесты для `CitySearch`:
-- При вводе меньше 3 символов дропдаун не появляется
-- При вводе 3+ символов вызывается `fetchCitySearch`
+Допиши оставшиеся случаи: влажность и ветер.
 
-Для второго теста нужно замокать `fetchCitySearch`. Подсказка: в Vitest это делается через `vi.mock('@/lib/geocoding-api', ...)`.
+---
+
+Дальше — напиши тесты для `CitySearch`. Здесь уже нужно симулировать ввод текста:
+
+```ts
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import CitySearch from '@/components/weather/CitySearch'
+
+describe('CitySearch', () => {
+    it('не показывает дропдаун при вводе меньше 3 символов', async () => {
+        const user = userEvent.setup()
+        render(<CitySearch onSelect={___} />)
+
+        await user.type(screen.getByPlaceholderText(/название города/i), 'Бе')
+
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    })
+})
+```
+
+`userEvent.setup()` создаёт виртуального пользователя. `user.type(element, 'текст')` — симулирует настоящий ввод посимвольно, включая события `keydown/keyup/input`. Это важно — `fireEvent.change` из старых туториалов не триггерит все события.
+
+Следующий тест — при вводе 3+ символов должен вызываться `fetchCitySearch`. Для этого нужно замокать модуль:
+
+```ts
+vi.mock('@/lib/geocoding-api', () => ({
+    fetchCitySearch: vi.fn().mockResolvedValue([]),
+}))
+```
+
+После этого можно проверить что функция была вызвана: `expect(fetchCitySearch).toHaveBeenCalledWith('Бер')`. Учти debounce — тест нужно подождать нужное количество миллисекунд. Подсказка: `vi.useFakeTimers()`.
 
 ---
 
