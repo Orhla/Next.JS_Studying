@@ -6,6 +6,7 @@ import CityWeatherCard from "@/components/weather/CityWeatherCard"
 import {CurrentWeather, fetchCityWeather} from "@/lib/weather-api";
 
 import Link from "next/link"
+import CitySearch from "@/components/weather/CitySearch"
 
 const STORAGE_KEY = "additionalCities"
 
@@ -50,31 +51,28 @@ export default function AdditionalCities({ available }: { available: City[] }) {
 
     return (
         <div>
-            <h2>Дополнительные города</h2>
-            <select onChange={e => {
-                const city = available.find(c => c.name === e.target.value)
-                if (city) toggle(city)
-                e.target.value = ""
-            }} defaultValue="">
-                <option value="" disabled>Добавить город...</option>
-                {available.map(city => (
-                    <option key={city.name} value={city.name}>
-                        {selected.some(c => c.name === city.name) ? `✓ ${city.name}` : city.name}
-                    </option>
-                ))}
-            </select>
+            <h2 className="font-semibold mb-2">Дополнительные города</h2>
+            <CitySearch size="sm" onSelect={toggle} />
             {selected.length > 0 && (
-                <ul>
-                    {citiesWeather.map(weather => (
-                        <div key={weather.cityName}>
-                            <li key={weather.cityName}>
-                                {weather.cityName}
-                                <button onClick={() => toggle(available.find(c=>c.name === weather.cityName))}>✕</button>
-                            </li>
-                            <Link href={`/city/${weather.cityName}`}><CityWeatherCard weather={weather} /></Link>
-                        </div>
-                    ))}
-                </ul>
+                <div className="flex flex-col gap-3 mt-3">
+                    {citiesWeather.map(weather => {
+                        const city = selected.find(c => c.name === weather.cityName)
+                        if (!city) return null
+                        return (
+                            <div key={city.id} className="relative">
+                                <Link href={`/city/${city.id}`}>
+                                    <CityWeatherCard weather={weather} />
+                                </Link>
+                                <button
+                                    onClick={() => toggle(city)}
+                                    className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm hover:bg-red-50 hover:text-red-500 text-gray-400 text-xs transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )
+                    })}
+                </div>
             )}
         </div>
     )
