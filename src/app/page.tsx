@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { CITIES } from '@/lib/types'
 import CityWeatherCard from '@/components/weather/CityWeatherCard'
 import Link from 'next/link'
-import CitySearch from '@/components/weather/CitySearch'
+import CitySearchMain from '@/components/weather/CitySearchMain'
 import { getCityFromCookies } from '@/lib/weather'
 import { fetchCityWeather } from '@/lib/weather-api'
 
@@ -22,7 +22,7 @@ export default async function CityCurrentWeather() {
 
   return (
       <div className="flex flex-col gap-4 w-180 mx-auto">
-        <CitySearch />
+        <CitySearchMain />
         <p>Вы выбрали город {userCity.name}</p>
         <Link href={`/city/${userCity.id}`}><CityWeatherCard weather={weather} /></Link>
         <AdditionalCities available={available} />

@@ -6,3 +6,9 @@ export type Day = {
     humidity: number;
     wind: number;
 };
+
+export enum validWeather {
+    sunny = "Солнечно",
+    cloudy = "Облачно",
+    rainy = "Дождь"
+}

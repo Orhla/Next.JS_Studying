@@ -1,78 +1,91 @@
 "use client"
 
 import { City } from "@/lib/types";
-import { useState } from "react";
-import { setCity } from "@/app/actions/actions";
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
 import { fetchCitySearch } from "@/lib/geocoding-api";
 
-export default function CitySearch() {
+type Size = "sm" | "md"
 
+type Props = {
+    onSelect: (city: City) => void
+    size?: Size
+}
+
+const sizeStyles: Record<Size, { input: string; item: string }> = {
+    md: {
+        input: "rounded-xl border-2 border-blue-400 py-3 px-4 text-base shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-200",
+        item: "p-3",
+    },
+    sm: {
+        input: "rounded-lg border border-gray-300 py-2 px-3 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100",
+        item: "p-2",
+    },
+}
+
+export default function CitySearch({ onSelect, size = "md" }: Props) {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [query, setQuery] = useState<string>('');
     const [results, setResults] = useState<City[]>([])
 
-    async function handleSearch() {
-        if (!query.trim()) return
-        setLoading(true)
-        setError(null)
-        try {
-            const data = await fetchCitySearch(query);
-            console.log(data);
-            setResults(data);
-        } catch (e) {
-            setError(e instanceof Error ? e.message : "Что-то пошло не так")
-        } finally {
-            setLoading(false);
+    const styles = sizeStyles[size]
+
+    useEffect(() => {
+        if (query.trim().length < 3) {
+            setResults([])
+            setError(null)
+            return
         }
+        const timer = setTimeout(async () => {
+            setLoading(true)
+            setError(null)
+            try {
+                const data = await fetchCitySearch(query)
+                setResults(data)
+            } catch (e) {
+                setError(e instanceof Error ? e.message : "Что-то пошло не так")
+            } finally {
+                setLoading(false)
+            }
+        }, 350)
+        return () => clearTimeout(timer)
+    }, [query])
+
+    function handleSelect(city: City) {
+        onSelect(city)
+        setQuery('')
+        setResults([])
     }
 
-    const router = useRouter()
+    const showDropdown = query.trim().length >= 3
 
-    async function handleSelect(city: City) {
-        await setCity(city);
-        router.push("/");
-    }
-
-    // if (loading) {
-    //     return <div>Загрузка...</div>
-    // }
-
-    // if (error) {
-    //     return <div>Произошла ошибка: {error}</div>
-    // }
-    console.log("loading", loading);
     return (
-    <div className="relative flex-column flex-1 shrink-0 gap-4">
-        <p>{loading && "Загрузка..."}</p>
-        <p>{error && `Ошибка ${error}`}</p>
-        <div className="flex flex-1 shrink-0 gap-4">
+        <div className="relative">
             <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                className={`block w-full placeholder:text-gray-400 focus:outline-none transition-colors ${styles.input}`}
                 placeholder="Введите название города..."
+                value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") handleSearch() }}
             />
-            <button className="self-start px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                    onClick={handleSearch}>Поиск</button>
+            {showDropdown && (
+                <ul className="absolute z-10 mt-1 w-full border rounded-md bg-white shadow-lg divide-y max-h-64 overflow-y-auto">
+                    {loading && <li className="p-3 text-sm text-gray-400">Поиск...</li>}
+                    {error && <li className="p-3 text-sm text-red-500">{error}</li>}
+                    {!loading && !error && results.length === 0 && (
+                        <li className="p-3 text-sm text-gray-400">Города не найдены</li>
+                    )}
+                    {results.map((city) => (
+                        <li
+                            key={city.id}
+                            className={`hover:bg-gray-50 cursor-pointer ${styles.item}`}
+                            onClick={() => handleSelect(city)}
+                        >
+                            <span className="font-medium text-sm">{city.name}</span>
+                            <p className="text-xs text-gray-500">{city.country}</p>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
-      <ul className="border rounded divide-y bg-white shadow-md">
-        {results.length > 0 ? (
-          results.map((city) => (
-            <li
-              key={city.id}
-              className="p-3 hover:bg-gray-50 cursor-pointer text-black"
-              onClick={() => handleSelect(city)}
-            >
-              <span className="font-medium">{city.name}</span>
-              <p className="text-xs text-gray-500">{city.country}</p>
-            </li>
-          ))
-        ) : (
-          !loading && <li className="p-3 text-gray-400">Города не найдены</li>
-        )}
-      </ul>
-    </div>
-  );
+    )
 }
