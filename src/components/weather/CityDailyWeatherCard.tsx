@@ -4,20 +4,7 @@ import { City } from "@/lib/types";
 import { DailyWeather, fetchCityDailyWeather } from "@/lib/weather-api";
 import { weatherCodes } from "@/lib/weatherCodes";
 import { useEffect, useState } from "react";
-import { datetoRussianLocale } from "@/lib/weather";
-
-function getWeatherEmoji(code: number): string {
-    if (code === 0) return "☀️";
-    if (code <= 2) return "🌤️";
-    if (code === 3) return "☁️";
-    if (code <= 48) return "🌫️";
-    if (code <= 57) return "🌦️";
-    if (code <= 67) return "🌧️";
-    if (code <= 77) return "❄️";
-    if (code <= 82) return "🌧️";
-    if (code <= 86) return "🌨️";
-    return "⛈️";
-}
+import { datetoRussianLocale, getWeatherEmoji } from "@/lib/weather";
 
 type Status =
     | { kind: "loading" }

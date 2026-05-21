@@ -10,7 +10,7 @@ import CitySearch from "@/components/weather/CitySearch"
 
 const STORAGE_KEY = "additionalCities"
 
-export default function AdditionalCities({ available }: { available: City[] }) {
+export default function AdditionalCities() {
     const [selected, setSelected] = useState<City[]>([])
     const [citiesWeather, setCitiesWeather] = useState<CurrentWeather[]>([])
     const [loading, setLoading] = useState<boolean>(false)
@@ -37,8 +37,8 @@ export default function AdditionalCities({ available }: { available: City[] }) {
 
     function toggle(city: City) {
         setSelected(prev => {
-            const next = prev.some(c => c.name === city.name)
-                ? prev.filter(c => c.name !== city.name)
+            const next = prev.some(c => c.id === city.id)
+                ? prev.filter(c => c.id !== city.id)
                 : [...prev, city]
             localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
             return next
@@ -60,7 +60,7 @@ export default function AdditionalCities({ available }: { available: City[] }) {
                         if (!city) return null
                         return (
                             <div key={city.id} className="relative">
-                                <Link href={`/city/${city.id}`}>
+                                <Link href={`/city?id=${city.id}`}>
                                     <CityWeatherCard weather={weather} />
                                 </Link>
                                 <button

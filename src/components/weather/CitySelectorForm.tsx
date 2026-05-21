@@ -1,18 +1,18 @@
-"use client"
+// "use client"
 
-import { useState } from "react"
-import { City, CITIES } from "@/lib/types"
-import CitySelector from "@/components/weather/CitySelector"
-import { setCity } from "@/app/actions/actions"
+// import { useState } from "react"
+// import { City, CITIES } from "@/lib/types"
+// import CitySelector from "@/components/weather/CitySelector"
+// import { setCity } from "@/app/actions/actions"
 
-export default function CitySelectorForm() {
-    const [selectedCity, setSelectedCity] = useState<City>(CITIES[0])
+// export default function CitySelectorForm() {
+//     const [selectedCity, setSelectedCity] = useState<City>(CITIES[0])
 
-    return (
-        <form action={() => setCity(selectedCity)}>
-            <CitySelector selectedCity={selectedCity} onCityChange={setSelectedCity} />
-            <button className="self-start px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                    type="submit">Сохранить</button>
-        </form>
-    )
-}
+//     return (
+//         <form action={() => setCity(selectedCity)}>
+//             <CitySelector selectedCity={selectedCity} onCityChange={setSelectedCity} />
+//             <button className="self-start px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+//                     type="submit">Сохранить</button>
+//         </form>
+//     )
+// }
