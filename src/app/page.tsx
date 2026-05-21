@@ -20,7 +20,7 @@ export default function CityCurrentWeather() {
 
   useEffect(() => {
     const storedMainCity = localStorage.getItem(STORAGE_KEY)
-    
+
     if (!storedMainCity) {
       router.push('/set-city');
       return;
@@ -63,9 +63,9 @@ export default function CityCurrentWeather() {
   return (
     <div className="flex flex-col gap-4 w-full max-w-xl mx-auto px-4">
       <CitySearchMain onCityChange={setUserCity} />
-      
+
       <p className="text-sm text-gray-600">
-        Вы выбрали город: <span className="font-semibold text-gray-900">{userCity.name}</span>
+        Вы выбрали замечательный город: <span className="font-semibold text-gray-900">{userCity.name}</span>
       </p>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
