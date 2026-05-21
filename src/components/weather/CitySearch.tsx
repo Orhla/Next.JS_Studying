@@ -71,10 +71,10 @@ export default function CitySearch({ onSelect, size = "md" }: Props) {
                 <ul className="absolute z-10 mt-1 w-full border rounded-md bg-white shadow-lg divide-y max-h-64 overflow-y-auto">
                     {loading && <li className="p-3 text-sm text-gray-400">Поиск...</li>}
                     {error && <li className="p-3 text-sm text-red-500">{error}</li>}
-                    {!loading && !error && results.length === 0 && (
+                    {!loading && !error && results && results.length === 0 && (
                         <li className="p-3 text-sm text-gray-400">Города не найдены</li>
                     )}
-                    {results.map((city) => (
+                    {results && results.map((city) => (
                         <li
                             key={city.id}
                             className={`hover:bg-gray-50 cursor-pointer ${styles.item}`}
