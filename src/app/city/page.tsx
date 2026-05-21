@@ -6,18 +6,16 @@ import { useEffect, useState, Suspense } from "react";
 import { City } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 
-const MOSCOW_ID = "524901";
-
-export default function CityWeekForecast() {
+function CityWeekForecastInner() {
     const searchParams = useSearchParams()
-    const cityID = searchParams.get("id") || MOSCOW_ID
-    
+    const cityID = searchParams.get("id")
+
     const [city, setCity] = useState<City | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        async function loadCityData() {
+        async function loadCityData(cityID: string) {
             setLoading(true)
             setError(null)
             try {
@@ -33,8 +31,9 @@ export default function CityWeekForecast() {
                 setLoading(false)
             }
         }
-
-        loadCityData()
+        if (cityID) {
+            loadCityData(cityID)
+        }
     }, [cityID])
 
     if (loading) {
@@ -45,7 +44,7 @@ export default function CityWeekForecast() {
         )
     }
 
-    if (error || !city) {
+    if (error || !city || !cityID) {
         return (
             <main className="max-w-3xl mx-auto px-6 py-8 text-center">
                 <p className="text-red-500 font-medium">{error || "Город не найден"}</p>
@@ -62,6 +61,18 @@ export default function CityWeekForecast() {
                 <CityDailyWeatherCard city={city} />
             </div>
         </main>
+    )
+}
+
+export default function CityWeekForecast(){
+    return (
+        <Suspense fallback={
+            <main className="max-w-3xl mx-auto px-6 py-8 flex flex-col items-center justify-center min-h-64">
+                <p className="text-gray-400 text-sm animate-pulse">Загрузка компонента города...</p>
+            </main>
+        }>
+            <CityWeekForecastInner />
+        </Suspense>
     )
 }
 

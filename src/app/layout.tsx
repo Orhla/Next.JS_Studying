@@ -27,6 +27,9 @@ export default function RootLayout({
     <html
       lang="ru"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <Script type="text/javascript" src={"/yandex-metrica.js"} />
+      </head>
       <body className="min-h-full flex flex-col min-h-screen">
         <main className="flex-1">{children}</main>
         <Script id="yandex-metrika" strategy="afterInteractive">
